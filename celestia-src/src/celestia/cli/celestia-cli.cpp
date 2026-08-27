@@ -25,6 +25,7 @@
 #include <celengine/simulation.h>
 #include <celengine/texmanager.h>
 #include <celestia/celestiacore.h>
+#include <celmath/geomutil.h>
 #include <celutil/logger.h>
 
 #include "../qt/qtcli.h"
@@ -213,7 +214,22 @@ bool renderFrame(int width, int height, const QString& outPath, const QString& s
         if (!sel.empty())
         {
             sim->setSelection(sel);
-            sim->centerSelection(0.0);
+            // Fly to the selected object instantly, then point the camera at
+            // it. gotoSelection(0) moves the observer (the journey completes
+            // in Observer::update), while setOrientation guarantees the -Z
+            // axis aims at the target (the journey orientation does not
+            // settle in a single update() call).
+            Observer* obs = sim->getActiveObserver();
+            sim->gotoSelection(0.0,
+                               Eigen::Vector3f::UnitY(),
+                               ObserverFrame::CoordinateSystem::ObserverLocal);
+            obs->update(0.0, 1.0);
+            Eigen::Vector3d focus = sel.getPosition(obs->getTime())
+                                        .offsetFromKm(obs->getPosition());
+            Eigen::Vector3d up = (obs->getOrientation().conjugate() *
+                                  Eigen::Vector3d::UnitY());
+            Eigen::Quaterniond q = math::LookAt<double>(Eigen::Vector3d::Zero(), focus, up);
+            obs->setOrientation(q);
         }
     }
 

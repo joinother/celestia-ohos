@@ -4,11 +4,12 @@
 
 ## 进行中 / 未验证
 
-### 1. 无头渲染 `--select` 后天体未完全居中
-- **现象：** `celestia-cli --render-to-image --select Earth` 渲染出的 HUD 目标信息正确，但相机未对准天体中心（视角停留在远处星空）
-- **根因：** `centerSelection(0.0)` 立即执行但相机需要时间/多帧推进才稳定
-- **方向：** 渲染前用 `gotoSelection` 多帧推进，或手动计算 observer→target 方向对准
-- **状态：** ⚠️ 进行中
+### 1. 无头渲染 `--select` 后天体未居中（已修复）
+- **现象：** `celestia-cli --render-to-image --select Earth` 渲染出的 HUD 目标信息正确，但相机未对准天体中心
+- **根因：** `centerSelection(0.0)` / `gotoSelection` 的 journey 朝向在单次 `Observer::update()` 中不生效（`getOrientation()` 返回 `transformedOrientationUniv` 未更新）
+- **修复：** `gotoSelection(0.0)` 移动位置 + `obs->update(0,1)` 完成移动 + `math::LookAt` 计算朝向 + `obs->setOrientation(q)` 直接对准
+- **验证：** 渲染出居中的地球（55533 km）与木星（4.45 AU）
+- **修复提交：** （见 git log 2026-08-27）
 
 ### 2. 鸿蒙渲染管线未做性能优化
 - **现象：** 鸿蒙端渲染未验证 PBO 异步回读 / 降采样 / VSync 禁用

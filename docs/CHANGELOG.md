@@ -35,3 +35,10 @@
 - **修改内容：** 初始移植：Qt-for-OHOS 交叉编译 `libcelestiaqt.so`、ArkTS 壳、数据资源 rawfile/celestia、configure.sh 工具链配置
 - **构建结果：** BUILD SUCCESSFUL
 - **验证结果：** 可构建、可安装、可运行
+
+## 2026-08-27 - 修复无头渲染 --select 未居中（goto + setOrientation 组合）
+- **修改文件：** `celestia-src/src/celestia/cli/celestia-cli.cpp`
+- **修改内容：** renderFrame 的 select 逻辑改为：`gotoSelection(0.0)` 飞到目标附近 + `obs->update(0,1)` 完成移动 + `math::LookAt` 计算朝向 + `setOrientation(q)` 直接对准（替代 centerSelection）
+- **修改原因：** journey 的朝向在单次 update 中不生效，导致目标在视野边缘或不可见
+- **构建结果：** BUILD SUCCESSFUL
+- **验证结果：** 通过（渲染出居中的地球 55533km 与木星 4.45AU，均为满相位大球体）
