@@ -30,8 +30,13 @@
 #include "../qt/qtcli.h"
 
 #include <QCommandLineParser>
+#include <QFile>
 #include <QGuiApplication>
 #include <QImage>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 #include <QOffscreenSurface>
 #include <QOpenGLContext>
 #include <QSurfaceFormat>
@@ -283,6 +288,126 @@ bool renderFrame(int width, int height, const QString& outPath, const QString& s
 }
 
 // ---------------------------------------------------------------------------
+// Command catalog (mirrors Stellarium's command-bus catalog: one dispatcher,
+// used by CLI, scripts and the ArkTS UI alike). The catalog lives here so the
+// headless CLI can print it (--list) and validate batch files without touching
+// the qtcli dispatcher, which stays the single execution path.
+// ---------------------------------------------------------------------------
+struct CommandEntry
+{
+    const char* name;
+    const char* usage;
+    const char* desc;
+};
+
+const CommandEntry kCommandCatalog[] = {
+    { "goto",     "goto <天体>",                    "飞往天体（5 秒过渡）" },
+    { "go",       "go <天体>",                      "飞往天体（goto 简写）" },
+    { "select",   "select <天体>",                  "选择天体" },
+    { "center",   "center <天体>",                  "居中天体" },
+    { "follow",   "follow <天体>",                  "跟随天体" },
+    { "syncorbit","syncorbit <天体>",               "同步轨道跟随" },
+    { "home",     "home",                           "返回太阳系" },
+    { "time",     "time scale <倍率> | time <儒略日>", "设置时间倍率或儒略日" },
+    { "setsurface","setsurface <名称>",             "切换天体表面" },
+    { "render",   "render <标记>",                  "开关渲染层（orbit/clouds/atmospheres/boundaries/markers）" },
+    { "label",    "label <标记>",                   "开关标签（stars/planets/moons/constellations/...）" },
+    { "location", "location <纬度> <经度> [高度]",   "飞到地表位置" },
+    { "print",    "print <文字>",                   "显示消息" },
+    { "script",   "script <路径>",                  "执行 celx 脚本" },
+    { "renderimg","renderimg [宽x高]",              "渲染一帧 PNG 到 screenshot.png（默认 1920x1080）" },
+    { "help",     "help",                           "显示帮助" },
+    { "list",     "list",                           "列出全部可用命令" },
+    { "version",  "version",                        "显示版本" },
+    { "quit",     "quit",                           "退出" },
+};
+
+QString listCommands(bool json)
+{
+    const int n = static_cast<int>(std::size(kCommandCatalog));
+    if (!json)
+    {
+        QStringList lines;
+        lines << "可用命令：";
+        for (int i = 0; i < n; i++)
+            lines << QStringLiteral("  %1  %2").arg(kCommandCatalog[i].name, -12).arg(kCommandCatalog[i].desc);
+        return lines.join(QLatin1Char('\n'));
+    }
+    // JSON catalog for machine consumption (AI / scripts).
+    QStringList items;
+    for (int i = 0; i < n; i++)
+    {
+        items << QStringLiteral("{\"name\":\"%1\",\"usage\":\"%2\",\"desc\":\"%3\"}")
+                     .arg(kCommandCatalog[i].name)
+                     .arg(kCommandCatalog[i].usage)
+                     .arg(kCommandCatalog[i].desc);
+    }
+    return QStringLiteral("{\"commands\":[%1]}").arg(items.join(QLatin1Char(',')));
+}
+
+// Run one command line through the shared dispatcher; returns true on success.
+bool runCommandLine(const QString& line)
+{
+    const QString t = line.trimmed();
+    if (t.isEmpty())
+        return true;
+    if (t == "quit" || t == "exit" || t == "q")
+        return false;
+    if (t == "list")
+    {
+        std::cout << listCommands(false).toStdString() << "\n";
+        return true;
+    }
+    if (!CelestiaCli::execute(&core, t))
+    {
+        std::cerr << "unknown command: " << t.toStdString() << "\n";
+        std::cerr << "try 'help' or 'list'\n";
+        return false;
+    }
+    return true;
+}
+
+// Execute a batch of commands from a JSON file:
+//   [ {"command":"goto Mars"}, {"command":"goto","payload":"Saturn"} ]
+// A failing item does not stop the rest of the batch.
+int runBatch(const QString& path)
+{
+    QFile f(path);
+    if (!f.open(QIODevice::ReadOnly))
+    {
+        std::cerr << "celestia-cli: cannot open batch file " << path.toStdString() << "\n";
+        return 1;
+    }
+    QJsonParseError err{};
+    const QJsonDocument doc = QJsonDocument::fromJson(f.readAll(), &err);
+    if (err.error != QJsonParseError::NoError || !doc.isArray())
+    {
+        std::cerr << "celestia-cli: invalid batch JSON: " << err.errorString().toStdString() << "\n";
+        return 1;
+    }
+
+    int failures = 0;
+    const QJsonArray arr = doc.array();
+    for (const QJsonValue& v : arr)
+    {
+        if (!v.isObject())
+            continue;
+        const QJsonObject obj = v.toObject();
+        QString cmd = obj.value(QStringLiteral("command")).toString();
+        const QString payload = obj.value(QStringLiteral("payload")).toString();
+        if (!payload.isEmpty())
+            cmd += QLatin1Char(' ') + payload;
+        if (cmd.isEmpty())
+            continue;
+        if (!runCommandLine(cmd))
+            failures++;
+    }
+    std::cout << "celestia-cli: batch done, " << arr.size() << " items, "
+              << failures << " failed\n";
+    return failures == 0 ? 0 : 1;
+}
+
+// ---------------------------------------------------------------------------
 // Interactive console
 // ---------------------------------------------------------------------------
 int runInteractive()
@@ -291,7 +416,7 @@ int runInteractive()
     QTextStream out(stdout);
     QString line;
 
-    out << "Celestia CLI (headless) - type 'help' for commands, 'quit' to exit.\n";
+    out << "Celestia CLI (headless) - type 'help' for commands, 'list' for the catalog, 'quit' to exit.\n";
     out.flush();
 
     while (true)
@@ -315,11 +440,26 @@ int runInteractive()
             continue;
         }
 
-        if (!CelestiaCli::execute(&core, t))
+        if (t.startsWith(QStringLiteral("renderimg")))
         {
-            out << "unknown command: " << t << "\n";
-            out << "try 'help'\n";
+            const QStringList parts = t.split(QRegularExpression(QStringLiteral("\\s+")), Qt::SkipEmptyParts);
+            int w = 1920, h = 1080;
+            if (parts.size() > 1)
+            {
+                const QStringList wh = parts[1].split(QLatin1Char('x'));
+                if (wh.size() == 2)
+                {
+                    w = wh[0].toInt();
+                    h = wh[1].toInt();
+                }
+            }
+            out << "saving screenshot.png\n";
+            out.flush();
+            renderFrame(w, h, QStringLiteral("screenshot.png"), QString());
+            continue;
         }
+
+        runCommandLine(t);
     }
     return 0;
 }
@@ -385,6 +525,13 @@ int main(int argc, char* argv[])
     QCommandLineOption execOpt(QStringList() << "e" << "exec",
                                QStringLiteral("execute a single console command and exit"),
                                QStringLiteral("cmd"));
+    QCommandLineOption listOpt(QStringList() << "l" << "list",
+                               QStringLiteral("list the command catalog and exit (--json for JSON)"));
+    QCommandLineOption batchOpt(QStringLiteral("batch"),
+                                QStringLiteral("execute commands from a JSON file and exit"),
+                                QStringLiteral("file"));
+    QCommandLineOption jsonOpt(QStringLiteral("json"),
+                               QStringLiteral("emit machine-readable output (JSON)"));
 
     parser.addOption(dataDirOpt);
     parser.addOption(confOpt);
@@ -394,6 +541,9 @@ int main(int argc, char* argv[])
     parser.addOption(sizeOpt);
     parser.addOption(timeOpt);
     parser.addOption(execOpt);
+    parser.addOption(listOpt);
+    parser.addOption(batchOpt);
+    parser.addOption(jsonOpt);
     parser.process(app);
 
     // Resolve data directory.
@@ -403,6 +553,13 @@ int main(int argc, char* argv[])
     QString confName = parser.value(confOpt);
     if (confName.isEmpty())
         confName = QStringLiteral("celestia.cfg");
+
+    // --list prints the command catalog without needing a render context or data.
+    if (parser.isSet(listOpt))
+    {
+        std::cout << listCommands(parser.isSet(jsonOpt)).toStdString() << "\n";
+        return 0;
+    }
 
     // Offscreen GL must be ready before core renderer init.
     if (!setupOffscreenGL())
@@ -464,6 +621,11 @@ int main(int argc, char* argv[])
             return 1;
         }
         return 0;
+    }
+
+    if (parser.isSet(batchOpt))
+    {
+        return runBatch(parser.value(batchOpt));
     }
 
     // Interactive mode.

@@ -89,6 +89,16 @@ $CLI --dir $DATA --exec "time scale 10000x"
 # 执行 celx 脚本
 $CLI --dir $DATA --script $DATA/demo.cel
 
+# 列出命令目录（--json 输出机器可读格式）
+$CLI --list
+$CLI --list --json
+
+# 批量执行 JSON 命令文件（单项失败不阻断后续）
+cat > cmds.json <<'EOF'
+[{"command":"select Jupiter"},{"command":"goto","payload":"Mars"},{"command":"time scale","payload":"1000x"}]
+EOF
+$CLI --dir $DATA --batch cmds.json
+
 # 交互式控制台（stdin 输入 goto/select/time/render/label/...，render 输出截图）
 printf 'goto Saturn\nrender\nquit\n' | $CLI --dir $DATA
 ```
