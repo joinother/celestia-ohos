@@ -1,3 +1,5 @@
+import { CliConsole } from './CliConsole';
+
 export interface WindowNativeNodeCreateInfo {
   xComponentId: string
   onAppear: () => void

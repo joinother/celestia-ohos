@@ -92,6 +92,7 @@
 #include "qtcelestiaactions.h"
 #include "qtcelestialbrowser.h"
 #include "qtcommandline.h"
+#include "qtcli.h"
 #include "qtdeepskybrowser.h"
 #include "qteventfinder.h"
 #include "qtglwidget.h"
@@ -247,6 +248,7 @@ CelestiaAppWindow::CelestiaAppWindow(QWidget* parent) :
 {
     setObjectName("celestia-mainwin");
     timer = new QTimer(this);
+    cliTimer = new QTimer(this);
 }
 
 CelestiaAppWindow::~CelestiaAppWindow()
@@ -504,6 +506,39 @@ CelestiaAppWindow::init(const CelestiaCommandLineOptions& options)
     // We use a timer to add m_appCore->tick to Qt's event loop
     QObject::connect(timer, SIGNAL(timeout()), SLOT(celestia_tick()));
     timer->start();
+
+    // Poll the CLI command file written by the ArkTS UI (HarmonyOS port).
+    QObject::connect(cliTimer, &QTimer::timeout, this, &CelestiaAppWindow::processCliCommands);
+    cliTimer->start(150);
+
+    // CLI console dock (HarmonyOS port): an in-app command line executed
+    // directly against the Celestia core.
+    {
+        auto* cliHost = new QWidget(this);
+        auto* cliLayout = new QVBoxLayout(cliHost);
+        cliLayout->setContentsMargins(4, 2, 4, 2);
+        cliLayout->setSpacing(0);
+        auto* cliEdit = new QLineEdit(cliHost);
+        cliEdit->setPlaceholderText(tr("CLI: goto <天体> | time scale <倍率> | render <标记> | label <标记> | setsurface | location | script | help"));
+        cliEdit->setClearButtonEnabled(true);
+        cliLayout->addWidget(cliEdit);
+        auto* cliDock = new QDockWidget(tr("CLI 控制台"), this);
+        cliDock->setObjectName("cli-console-dock");
+        cliDock->setWidget(cliHost);
+        cliDock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable | QDockWidget::DockWidgetClosable);
+        addDockWidget(Qt::BottomDockWidgetArea, cliDock);
+        m_cliDock = cliDock;
+        QObject::connect(cliEdit, &QLineEdit::returnPressed, this, [this, cliEdit]() {
+            const QString cmd = cliEdit->text().trimmed();
+            if (cmd.isEmpty())
+                return;
+            CelestiaCli::execute(m_appCore, cmd);
+            cliEdit->clear();
+        });
+        // Add a toggle action to the View menu.
+        if (viewMenu != nullptr)
+            viewMenu->addAction(cliDock->toggleViewAction());
+    }
 }
 
 void
@@ -699,6 +734,48 @@ CelestiaAppWindow::celestia_tick()
 {
     m_appCore->tick();
     glWidget->update();
+}
+
+void
+CelestiaAppWindow::processCliCommands()
+{
+    if (m_appCore == nullptr || m_dataHome.isEmpty())
+        return;
+
+    const QString cmdFile = m_dataHome + QStringLiteral("/cli_commands.txt");
+    QFile f(cmdFile);
+    if (!f.exists())
+        return;
+
+    // Read queued commands (one per line), execute them, then truncate the file.
+    QStringList commands;
+    if (f.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        QTextStream in(&f);
+        const QString content = in.readAll();
+        f.close();
+        for (const QString& line : content.split(QStringLiteral("\n")))
+        {
+            const QString trimmed = line.trimmed();
+            if (!trimmed.isEmpty())
+                commands << trimmed;
+        }
+    }
+
+    if (!commands.isEmpty())
+    {
+        for (const QString& cmd : commands)
+        {
+            CEL_LOG("cli: executing '%s'", qPrintable(cmd));
+            CelestiaCli::execute(m_appCore, cmd);
+        }
+    }
+
+    // Clear the queue after processing.
+    if (f.open(QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text))
+    {
+        f.close();
+    }
 }
 
 void

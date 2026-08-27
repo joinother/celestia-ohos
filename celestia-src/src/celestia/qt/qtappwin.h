@@ -141,6 +141,10 @@ private:
     void switchToNormal();
     void switchToFullscreen();
 
+    // Poll <dataDir>/cli_commands.txt written by the ArkTS UI and execute
+    // any queued Celestia CLI commands against m_appCore.
+    void processCliCommands();
+
     QImage grabFramebuffer() const;
 
     CelestiaGlWidget* glWidget{ nullptr };
@@ -176,6 +180,8 @@ private:
     QString m_dataHome;
 
     QTimer *timer;
+    QTimer *cliTimer{ nullptr };
+    QDockWidget* m_cliDock{ nullptr };
 };
 
 } // end namespace celestia::qt

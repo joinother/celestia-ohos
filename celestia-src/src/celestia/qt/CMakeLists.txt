@@ -15,6 +15,8 @@ set(CELQT6_SOURCES
   qtcelestiaactions.h
   qtcelestialbrowser.cpp
   qtcelestialbrowser.h
+  qtcli.cpp
+  qtcli.h
   qtcolorswatchwidget.cpp
   qtcolorswatchwidget.h
   qtcommandline.cpp

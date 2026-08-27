@@ -27,6 +27,7 @@ export default class QAbilityStage extends AbilityStage {
         appName: APP_LIBRARY_NAME,
         appArgs: QAbilityStage.appArgs,
         abilityClassName: abilityClassName,
+        _unusedQChildProcess: {},
       });
       QAbilityStage.setupQtApplicationCalled = true;
       QAbilityStage.forwardStageCreateIfNeeded();
