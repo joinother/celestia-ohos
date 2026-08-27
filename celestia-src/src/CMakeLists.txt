@@ -17,6 +17,7 @@ foreach(lib ${CELESTIA_LIBS})
 endforeach()
 
 add_subdirectory(celscript)
+add_subdirectory(celestia/cli)
 
 if (ENABLE_TOOLS)
   add_subdirectory(tools)

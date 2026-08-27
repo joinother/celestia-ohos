@@ -54,3 +54,47 @@
 ## 许可证
 
 本项目基于 [Celestia](https://github.com/CelestiaProject/Celestia)（GPL-2.0），遵循原许可证。
+
+## CLI 命令行工具（Mac 开发机，无头渲染）
+
+`celestia-cli` 是一个在 Mac 开发机上运行的 Celestia 无头命令行工具：不弹窗口，直接离屏渲染图片、执行 celx 脚本、执行单条命令或进入交互式控制台。它复用同一份 `celestia-src` 源码，仅编译核心库 + 命令行入口。
+
+### 构建
+
+```bash
+# 依赖：Qt 6.12.0 (macos)、brew 安装 lua libpng libjpeg libepoxy freetype fmt eigen
+cmake -S celestia-src -B build-mac \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DENABLE_NLS=OFF -DENABLE_QT6=OFF -DENABLE_FFMPEG=OFF -DENABLE_LIBAVIF=OFF \
+  -DCMAKE_CXX_FLAGS="-Wno-register" \
+  -DCMAKE_PREFIX_PATH="/opt/homebrew/opt/eigen;/opt/homebrew/opt/fmt;/opt/homebrew/opt/lua;/opt/homebrew/opt/libpng;/opt/homebrew/opt/jpeg;/opt/homebrew/opt/libepoxy;/opt/homebrew/opt/freetype;/Users/jiexuanyang/Qt/6.12.0/macos"
+cmake --build build-mac --target celestia-cli -j 10
+```
+
+### 使用
+
+```bash
+DATA=app/entry/src/main/resources/rawfile/celestia
+CLI=build-mac/src/celestia/cli/celestia-cli
+export DYLD_LIBRARY_PATH=build-mac/src/celestia:build-mac/src/celengine:/opt/homebrew/lib
+export DYLD_FRAMEWORK_PATH=/Users/jiexuanyang/Qt/6.12.0/macos/lib
+
+# 渲染一帧到 PNG（无窗口）
+$CLI --dir $DATA --render-to-image /tmp/earth.png --select Earth --size 1920x1080
+
+# 执行单条命令
+$CLI --dir $DATA --exec "goto Mars"
+$CLI --dir $DATA --exec "time scale 10000x"
+
+# 执行 celx 脚本
+$CLI --dir $DATA --script $DATA/demo.cel
+
+# 交互式控制台（stdin 输入 goto/select/time/render/label/...，render 输出截图）
+printf 'goto Saturn\nrender\nquit\n' | $CLI --dir $DATA
+```
+
+### 支持的命令
+
+`goto/select/center/follow/syncorbit/home` · `time scale <倍率>` / `time <儒略日>` ·
+`render <标记>` / `label <标记>`（stars/orbits/clouds/atmospheres/constellations...）·
+`setsurface <表面>` · `location <纬度> <经度> [高度]` · `print` · `script <路径>` · `help`

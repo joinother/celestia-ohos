@@ -36,3 +36,4 @@ hilog*.txt
 *.orig
 .DS_Store
 sign/*.json
+build-mac/
