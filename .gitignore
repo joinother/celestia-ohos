@@ -35,3 +35,4 @@ hilog*.txt
 *.bak
 *.orig
 .DS_Store
+sign/*.json
