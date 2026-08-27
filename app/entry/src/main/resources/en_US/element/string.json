@@ -1,0 +1,7 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "Celestia - OpenGL-based 3D space simulation for HarmonyOS" },
+    { "name": "QAbility_desc", "value": "Celestia 3D Universe" },
+    { "name": "QAbility_label", "value": "Celestia" }
+  ]
+}

@@ -1,0 +1,1871 @@
+# SPDX-FileCopyrightText: 2001-2004, 2006-2009 Chris Laurel
+# SPDX-FileCopyrightText: 2001-2002 Clint Weisbrod
+# SPDX-FileCopyrightText: 2002 Deon Ramsey
+# SPDX-FileCopyrightText: 2003-2006 Fridger Schrempp
+# SPDX-FileCopyrightText: 2003-2005, 2007-2009 Grant Hutchison
+# SPDX-FileCopyrightText: 2005 Pat Suwalski
+# SPDX-FileCopyrightText: 2019, 2026 Askaniy Anpilogov
+# SPDX-FileCopyrightText: 2019 Hleb Valoshka <375gnu@gmail.com>
+# SPDX-FileCopyrightText: 2021 SevenSpheres
+# SPDX-FileCopyrightText: 2023, 2025 Andrew Tribick
+# SPDX-FileCopyrightText: 2023-2026 AstroChara
+# SPDX-FileCopyrightText: 2024-2026 Pedro J. Garcia
+# SPDX-FileCopyrightText: 2026 LunaTheSilly
+# SPDX-License-Identifier: GPL-2.0-or-later
+
+# Planets and major natural satellites of the Solar System.
+# The rest of the Solar System's natural satellites are in minormoons.ssc.
+#
+# The orbital and physical data for the planets necessarily come from a
+# variety of sources.
+#
+#
+# === Orbits ===
+#
+# CustomOrbits are used for most of the large bodies in the solar system.
+# These are orbital calculations built into Celestia. In most cases,
+# EllipticalOrbits are provided as well in order to give the reader of this
+# file some rough idea of the shape and size of a body's orbit. If a body has
+# a CustomOrbit defined, its EllipticalOrbit is *not* used by Celestia; the
+# CustomOrbit will override the EllipticalOrbit.
+#
+# For the planets, the orbits are calculated using the VSOP87 theory
+# (P. Bretagnon and G. Francou, "Planetary theories in rectangular and
+# spherical variables. VSOP87 solutions", Astronomy & Astrophysics 202
+# (1988) 309-315.
+#
+# The orbits of the Galilean satellites are from J. H. Lieske's "E5" theory
+# as given in Jean Meeus's _Astronomical Algorithms_, pp. 301-315
+#
+# The orbits of the following Saturnian satellites are from Vienne and Duriez
+# (1996), "New version of the TASS theory of the Saturnian satellites
+# including HYPERION":
+# Mimas, Enceladus, Tethys, Dione, Rhea, Titan, Hyperion, Iapetus
+#
+# The orbits of the five largest Uranian satellites are from Laskar and
+# Jacobson (1978), "An Analytical Ephemeris of the Uranian Satellites"
+# (Miranda, Ariel, Umbriel, Titania, and Oberon)
+#
+# The orbit of Triton is from Emelyanov and Samorodov (2015), MNRAS 454, 2205-2215
+# "Analytical theory of motion and new ephemeris of Triton from observations"
+#
+# **** IMPORTANT ****
+# For applications where more accuracy is required, the orbits of any solar
+# system body may be replaced by a SPICE kernel or a file of postion/velocity
+# samples. Detailed documentation on how to do this may be found on the
+# Celestia WikiBook:
+#   https://en.wikibooks.org/wiki/Celestia/Trajectories#CustomOrbit
+# It is also possible to use JPL's DE405 or DE406 ephemeris For the positions
+# of the planets, Moon, and Pluto. Details are here:
+#   https://en.wikibooks.org/wiki/Celestia/JPL_Ephemerides
+# *******************
+#
+#
+# === Rotational Elements ===
+#
+# For most bodies, rotational elements recommended by the IAU WGCCRE are used.
+# These are implemented internally by Celestia and selected by using a
+# CustomRotation. The IAU rotational elements are taken from the 2015 report,
+# available at:
+#   https://www.iau.org/WG100/WG100/Home.aspx
+#   https://www.usgs.gov/centers/astrogeology-science-center/science/iau-wgccre
+#
+# UniformRotations are also listed for purely informational reasons; they are
+# overridden by CustomRotations (when present).
+#
+# When alternate data sources are used for orbits or rotational elements, the
+# source is noted by a comment in the body definition.
+#
+#
+# === Sizes and Shapes ===
+#
+# Most bodies here are described as either spheres or ellipsoids. For these,
+# the Radius and SemiAxes parameters are used, respectively. If not otherwise
+# indicated by a source, these have been taken from the 2015 IAU WGCCRE report.
+#
+#
+# === Temperature, Albedo and Colors ===
+#
+# Bond albedo values were taken from the English Wikipedia, for Mars:
+#   http://www.tak2000.com/data/planets/mars.htm
+# Geometric albedo and colors of planets was calculated from the spectra
+# from this paper:
+#   https://arxiv.org/abs/1609.05048
+#
+#
+# === Masses ===
+#
+# Masses for objects in this file are taken from the JPL physical parameters
+# pages unless specified:
+#   https://ssd.jpl.nasa.gov/planets/phys_par.html
+#   https://ssd.jpl.nasa.gov/sats/phys_par/
+#
+# If the standard gravitational parameter GM is given instead, it is converted
+# to mass using the 2022 CODATA value of the gravitational constant G:
+# 6.67430(15) x 10^(-11) m^3 kg^(-1) s^(-2)
+# 
+# 
+# === Atmospheres ===
+# 
+# Rayleigh coefficients are calculated using the Rayleigh cross-section equation
+# Hansen & Travis (1974), Space Sci. Rev. 16, p. 527-610
+#   "Light scattering in planetary atmospheres"
+#   https://www.giss.nasa.gov/pubs/abs/ha09500o.html
+#   pp. 542-543, Equation 2.25
+# Refractive indices at standard conditions from RefractiveIndex.INFO
+#   https://refractiveindex.info
+# The wavelengths used are R = 680 nm, G = 550 nm, B = 440 nm.
+# 
+# Colors of Absorption are obtained using TrueColorTools,
+# using cross-section spectra from the HITRAN database:
+#   https://hitran.org
+# and processed by Luke Campbell.
+
+
+# Mass from Konopliv et al. (2020), Icarus 335, 113386
+#   "The Mercury gravity field, orientation, love number, and ephemeris from the
+#   MESSENGER radiometric tracking data"
+#   https://ui.adsabs.harvard.edu/abs/2020Icar..33513386K/abstract
+"Mercury" "Sol"
+{
+	Class	"planet"
+	Texture	"mercury.*"
+	NormalMap	"mercury-normal.*"
+	Color	[ 1.0 0.95415 0.86031 ]
+	Radius	2439.4
+	Mass<kg>	3.30100e23  # GM = (22031.8685514 ± 0.0012) km^3/s^2
+	CustomOrbit	"vsop87-mercury"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	0.240846264317122
+	#	SemiMajorAxis	0.3870982121840369
+	#	Eccentricity	0.2056302929816634
+	#	Inclination	7.00501414069919
+	#	AscendingNode	48.3305373398104
+	#	ArgOfPericenter	29.12428280936123
+	#	MeanAnomaly	174.7958829506606
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-mercury"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Period	1407.5075
+	#	Inclination	28.5845
+	#	AscendingNode	11.0103
+	#	MeridianAngle	329.5988
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.141380
+	BondAlbedo	0.088
+	InfoURL	"https://en.wikipedia.org/wiki/Mercury_(planet)"
+}
+
+"Venus" "Sol"
+{
+	Class	"planet"
+	Texture	"venus.*"
+	NormalMap	"venus-normal.*"
+	Color	[ 0.98965 1.0 0.98452 ]
+	Radius	6051.8
+	Mass<kg>	4.86731e24
+	Atmosphere
+	{
+		Height	200
+
+		# Scale height set so gas number density is accurate at surface and at 65 km (cloudtop/tropopause).
+		Rayleigh	[ 0.45296 1.07549 2.69291 ]
+		MieScaleHeight	11.4
+		
+		# Mie anisotropy from Satoh et al. (2009), JGR 114 (1), CiteID E00B37
+		#   "Cloud structure in Venus middle-to-lower atmosphere as inferred from VEX/VIRTIS 1.74 μm data"
+		#   https://agupubs.onlinelibrary.wiley.com/doi/10.1029/2008JE003184
+		#   https://ui.adsabs.harvard.edu/abs/2009JGRE..114.0B37S/abstract
+		Mie	0.5
+		MieHGAnisotropy	0.6
+
+		CloudHeight	65
+		CloudSpeed	90  # 90 degrees/day motion = 4 days super-rotation
+		CloudMap	"venus-clouds.*"
+	}
+	CustomOrbit	"vsop87-venus"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	0.615190499860112
+	#	SemiMajorAxis	0.7233269274790103
+	#	Eccentricity	0.006755786250503024
+	#	Inclination	3.394589648659516
+	#	AscendingNode	76.67837463924961
+	#	ArgOfPericenter	55.18596653686583
+	#	MeanAnomaly	50.11477187351476
+	# }
+
+	# Margot et al. (2021), Nature Astronomy 5, 676-683
+	#   "Spin state and moment of inertia of Venus"
+	#   https://ui.adsabs.harvard.edu/abs/2021NatAs...5..676M/abstract
+	BodyFrame	{ EquatorJ2000 {} }
+	UniformRotation
+	{
+		Period	5832.5424
+		Inclination	157.1510
+		AscendingNode	182.7391
+		MeridianAngle	19.72
+	}
+	LunarLambert	0.5
+	GeomAlbedo	0.672604
+	BondAlbedo	0.760
+	Emissivity	0.00933  # Mean surface temperature: 737 K
+	InfoURL	"https://en.wikipedia.org/wiki/Venus"
+}
+
+# Internal heat flux from Davies et al. (2013), GGG 14 (10), 4608-4622
+#   "Global map of solid Earth surface heat flow"
+#   https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/ggge.20271
+"Earth" "Sol"
+{
+	Class	"planet"
+	Texture	"earth.*"
+	NightTexture	"earth-night.*"
+	NormalMap	"earth-normal.*"
+	Color	[ 0.87572 0.91517 1.0 ]
+	SpecularColor	[ 0.50 0.44 0.40 ]
+	SpecularPower	120
+	SemiAxes	[ 6378.1366 6378.1366 6356.7519 ]
+	Mass<kg>	5.97217e24
+	Atmosphere
+	{
+		Height	100
+
+		# Bucholtz (1995), Applied Optics 34 (15), 2765-2773
+		#   "Rayleigh-scattering calculations for the terrestrial atmosphere"
+		#   https://opg.optica.org/ao/abstract.cfm?uri=ao-34-15-2765 [Paywalled]
+		#   R = 0.68 μm, G = 0.55 μm, B = 0.44 μm
+		Rayleigh	[ 0.004847 0.01149 0.02870 ]
+		RayleighScaleHeight	8.5
+
+        # Bruneton & Neyret (2008), Special Issue: Proceedings of the 19th Eurographics Symposium on Rendering 27 (4), pp.1079-1086
+        #   "Precomputed Atmospheric Scattering"
+        #   https://inria.hal.science/inria-00288758/en
+        Mie	0.01
+        MieHGAnisotropy	0.76
+        MieScaleHeight	1.2
+
+		# Approximating absorption due to gases in the atmosphere.
+		#   O2: 0.2095 (corrected with /1.004 to account for H2O)
+		#   H2O: 0.004
+		#   O3: 0.3e-6
+		Absorption	[ 0.00407 0.00254 0.00001 ]
+
+		CloudHeight	7
+		CloudMap	"earth-clouds.*"
+		CloudShadowDepth	1.0
+	}
+	CustomOrbit	"vsop87-earth"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	1.00069071545358
+	#	SemiMajorAxis	1.000448828928361
+	#	Eccentricity	0.0171186290535764
+	#	Inclination	0.000418134426968885
+	#	AscendingNode	135.0829426264774
+	#	ArgOfPericenter	326.7259945200456
+	#	MeanAnomaly	358.6172562406391
+	# }
+
+	# Orientation of Earth's axis with respect to the ecliptic plane and
+	# equinox of J2000 is computed with the long period extension of
+	# extension of the the P03 precession model presented in
+	# "Long-periodic Precession Parameters", J. Vondrak (2006)
+	BodyFrame	{ EclipticJ2000 {} }
+	CustomRotation	"earth-p03lp"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Period	23.93447117
+	#	Inclination	-23.4392911
+	#	MeridianAngle	280.147
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.449576
+	BondAlbedo	0.306
+	Emissivity	0.605  # Mean surface temperature: 288 K
+	InternalHeatFlux	0.086
+	InfoURL	"https://en.wikipedia.org/wiki/Earth"
+}
+
+# Size and shape from Smith et al. (2017), Icarus 283, p. 70-91
+#   "Summary of the results from the lunar orbiter laser altimeter after seven years in lunar orbit"
+#   https://ntrs.nasa.gov/citations/20160008718
+#   https://ui.adsabs.harvard.edu/abs/2017Icar..283...70S/abstract
+# Internal heat flux from Zhang et al. (2014), Acta Astronautica 99, 85-91
+#   "Lunar surface heat flow mapping from radioactive elements measured by Lunar Prospector"
+#   https://www.sciencedirect.com/science/article/pii/S0094576514000332?via%3Dihub
+#   https://ui.adsabs.harvard.edu/abs/2014AcAau..99...85Z/abstract
+"Moon:Earth I" "Sol/Earth"
+{
+	Class	"moon"
+	Texture	"moon.*"
+	NormalMap	"moon-normal.*"
+	Color	[ 1.0 0.94582 0.865 ]
+	SemiAxes	[ 1737.8981 1737.8981 1735.6576 ]
+	Mass<kg>	7.34579e22
+	CustomOrbit	"moon"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Earth" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	27.321661
+	#	SemiMajorAxis	384399
+	#	Eccentricity	0.05490
+	#	Inclination	5.240273
+	#	AscendingNode	123.958056
+	#	ArgOfPericenter	308.922672
+	#	MeanAnomaly	146.673275
+	# }
+
+	OrbitFrame
+	{
+		EquatorJ2000	{ Center "Sol/Earth" }
+	}
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-moon"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	23.4608
+	#	AscendingNode	359.9949
+	#	MeridianAngle	38.3213
+	# }
+
+	LunarLambert	1
+	GeomAlbedo	0.136
+	BondAlbedo	0.11
+	InternalHeatFlux	0.0183
+	InfoURL	"https://en.wikipedia.org/wiki/Moon"
+}
+
+
+# Martian system
+# Sizes and volumes of Phobos and Deimos from Ernst et al. (2023), Earth Planets Space 75, 103
+#   "High-resolution shape models of Phobos and Deimos from stereophotoclinometry"
+#   https://ui.adsabs.harvard.edu/abs/2023EP%26S...75..103E/abstract
+
+# Bond albedo from Creecy et al. (2022), PNAS 119 (21), id.e2121084119
+#   "Mars’ emitted energy and seasonal energy imbalance"
+#   https://www.pnas.org/doi/10.1073/pnas.2121084119
+#   Derived from absorbed energy and emitted energy, so likely already includes greenhouse effect.
+# Internal heat flux from Huang et al. (2022), PNAS 119 (42), id.e2204474119
+#   "Seismic detection of a deep mantle discontinuity within Mars by InSight"
+#   https://www.pnas.org/doi/10.1073/pnas.2204474119
+"Mars" "Sol"
+{
+	Class	"planet"
+	Texture	"mars.*"
+	NormalMap	"mars-normal.*"
+	Color	[ 1.0 0.79855 0.56429 ]
+	SemiAxes	[ 3396.19 3396.19 3376.20 ]
+	Mass<kg>	6.41691e23
+	Atmosphere
+	{
+		Height	80
+
+		# Rayleigh coefficients are hand-picked to emulate Martian daytime sky.
+		Rayleigh	[ 0.005 0.0038 0.0025 ]
+
+		# Schneegans et al. (2024), COMPUTER GRAPHICS forum 43 (2)
+		#   "Physically Based Real-Time Rendering of Atmospheres using Mie Theory"
+		#   https://onlinelibrary.wiley.com/doi/full/10.1111/cgf.15010
+		#   https://elib.dlr.de/204028/1/v43i2_15_15010.pdf
+		# MieHGAnisotropy from Chen-Chen et al. (2019), Icarus 330, p. 16-29
+		#   "Characterisation of Martian dust aerosol phase function from sky radiance measurements by MSL engineering cameras"
+		#   https://ui.adsabs.harvard.edu/abs/2019Icar..330...16C/abstract
+		MieScaleHeight	8  # "Rayleigh" scale height
+
+		Mie	0.0012
+		MieHGAnisotropy	0.673
+
+		# Cloud height based from Määttänen & Montmessin (2021)
+		#   "Clouds in the Martian Atmosphere"
+		#   https://insu.hal.science/insu-01814976
+		# Water ice clouds reach an altitude up to 40 km, from Table 1.
+		CloudHeight	20
+		CloudMap	"mars-clouds.*"
+	}
+	CustomOrbit	"vsop87-mars"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	1.88082484103404
+	#	SemiMajorAxis	1.523678992954245
+	#	Eccentricity	0.09331510145396012
+	#	Inclination	1.849876432291737
+	#	AscendingNode	49.56200626315643
+	#	ArgOfPericenter	286.5373825261921
+	#	MeanAnomaly	19.35648274604994
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-mars"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Period	24.6229621430470
+	#	Inclination	35.567484
+	#	AscendingNode	47.269202
+	#	MeridianAngle	176.049863
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.174821
+	BondAlbedo	0.241
+	InternalHeatFlux	0.0225
+	InfoURL	"https://en.wikipedia.org/wiki/Mars"
+}
+
+# Mass from Guo et al. (2026), MNRAS 548, stag578
+#   "Phobos' degree-1 ellipsoidal harmonic gravity field recovery from two Mars Express flybys"
+#   https://ui.adsabs.harvard.edu/abs/2026MNRAS.548ag578G/abstract
+# Albedos from Fornasier et al. (2024), A&A 686, A203
+#   "Phobos photometric properties from Mars Express HRSC observations"
+#   https://ui.adsabs.harvard.edu/abs/2024A%26A...686A.203F/abstract
+"Phobos:Mars I" "Sol/Mars"
+{
+	Class	"moon"
+	Mesh	"phobos.cmod"
+	MeshCenter	[ -0.3790 -0.2983 0.2450 ]
+	Texture	"phobos.*"
+	Color	[ 1.0 0.987 0.942 ]
+	BlendTexture	true
+	Radius	12.95  # maximum semi-axis
+	Mass<kg>	1.06373e16  # GM = (7.09962 ± 0.00197) x 10^5 m^3/s^2 (3-sigma)
+	Density	1868  # calculated from volume
+	EllipticalOrbit
+	{
+		Epoch	2460000  # 2023 Feb 24 12:00
+		Period	0.31891023  # mean
+		SemiMajorAxis	9378.938
+		Eccentricity	0.01468
+		Inclination	2.097806
+		AscendingNode	38.701507
+		ArgOfPericenter	66.811489
+		MeanAnomaly	173.124729
+	}
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-phobos"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	37.11372734
+	#	AscendingNode	47.67071657
+	#	MeridianAngle	34.9964842535
+	# }
+
+	LunarLambert	1  # Lommel-Seeliger
+	GeomAlbedo	0.0683  # disk-resolved, green filter (538 nm)
+	SphAlbedo	0.0157  # green-filter Bond albedo
+	InfoURL	"https://en.wikipedia.org/wiki/Phobos_(moon)"
+}
+
+# Albedos from Thomas et al. (1996), Icarus 123, p. 536-556
+#   "The Surface of Deimos: Contribution of Materials and Processes to Its Unique Appearance"
+#   https://ui.adsabs.harvard.edu/abs/1996Icar..123..536T/abstract
+"Deimos:Mars II" "Sol/Mars"
+{
+	Class	"moon"
+	Mesh	"deimos.cmod"
+	MeshCenter	[ -0.7078 -0.2013 0.9583 ]
+	Texture	"deimos.*"
+	Color	[ 1.0 0.975 0.932 ]
+	BlendTexture	true
+	Radius	8.04  # maximum semi-axis
+	Mass<kg>	1.441e15  # GM = (9.62 ± 0.28) x 10^5 km^3/s^2
+	Density	1395  # calculated from volume
+	EllipticalOrbit
+	{
+		Epoch	2460000  # 2023 Feb 24 12:00
+		Period	1.2624407  # mean
+		SemiMajorAxis	23459.739
+		Eccentricity	0.000283
+		Inclination	2.217941
+		AscendingNode	286.210554
+		ArgOfPericenter	125.429446
+		MeanAnomaly	331.164065
+	}
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-deimos"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	36.49007967
+	#	AscendingNode	46.65705808
+	#	MeridianAngle	79.39932954
+	# }
+
+	LunarLambert	1  # Lommel-Seeliger
+	GeomAlbedo	0.068
+	SphAlbedo	0.027  # from geometric albedo and phase integral
+	InfoURL	"https://en.wikipedia.org/wiki/Deimos_(moon)"
+}
+
+
+# Jovian system
+
+# Size and shape from Galanti et al. (2026), Nature Astronomy 10, 493-501
+#   "The size and shape of Jupiter"
+#   https://www.nature.com/articles/s41550-026-02777-x
+# Bond albedo and internal heat flux from Li et al. (2018), Nature Communications 9, id. 3709
+#   "Less absorbed solar energy and more internal heat for Jupiter"
+#   https://www.nature.com/articles/s41467-018-06107-2
+#   https://ui.adsabs.harvard.edu/abs/2018NatCo...9.3709L/abstract
+"Jupiter" "Sol"
+{
+	Class	"planet"
+	Texture	"jupiter.*"  # from 2000 by Cassini-Huygens
+	Color	[ 1.0 0.98663 0.91433 ]
+	SemiAxes	[ 71488 71488 66842 ]
+	Mass<kg>	1.898125e27
+
+	# Atmosphere base: 0.55 bar (Cloud-2)
+	# Irwin et al. (2026) preprint
+	#   "Cloud and ammonia vertical profiles in the equatorial atmosphere of Jupiter determined from visible to near-IR observations made by VLT/MUSE, Cassini/VIMS, IRTF/SpeX and Juno/JIRAM"
+	#   https://arxiv.org/abs/2607.25542
+	Atmosphere
+	{
+		Height	170
+
+		Rayleigh	[ 0.00107 0.00254 0.00639 ]
+		MieScaleHeight	17.5
+
+		Mie	0.001
+		MieHGAnisotropy	0.6
+
+		# Approximating absorption due to gases in the atmosphere.
+		#   CH4: 0.0018
+		Absorption	[ 0.00024 0.00003 0.00000 ]
+	}
+	CustomOrbit	"vsop87-jupiter"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	11.8672211183947
+	#	SemiMajorAxis	5.204336236587197
+	#	Eccentricity	0.04878759832915376
+	#	Inclination	1.304632514444227
+	#	AscendingNode	100.4912520138616
+	#	ArgOfPericenter	275.0689654447587
+	#	MeanAnomaly	18.81562670870565
+	# }
+
+	# Pole orientation from https://ssd.jpl.nasa.gov/tools/gravity.html#/outerplanets
+	BodyFrame	{ EclipticJ2000 {} }
+	UniformRotation
+	{
+		Period	9.92492             # System III (radio emissions)
+		Inclination	2.216451        # J2000
+		AscendingNode	337.818458  # J2000
+		MeridianAngle	305.38      # correct System III prime meridian
+	}
+	GeomAlbedo	0.510901
+	BondAlbedo	0.503
+	InternalHeatFlux	7.485
+	Rings
+	{
+		Inner	122500
+		Outer	129360
+		Texture	"jupiter-rings.*"
+	}
+	InfoURL	"https://en.wikipedia.org/wiki/Jupiter"
+}
+
+AltSurface "2018 (Hubble)" "Sol/Jupiter"
+{
+	Texture	"jupiter-2018.*"
+}
+
+# Size and shape from Oberst & Schuster (2004), JGR 109, E04003
+#   "Vertical control point network and global shape of Io"
+#   https://ui.adsabs.harvard.edu/abs/2004JGRE..109.4003O/abstract
+# Internal heat flux from Davies et al. (2015), Icarus 262, 67-78
+#   "Map of Io’s volcanic heat flow"
+#   https://ui.adsabs.harvard.edu/abs/2015Icar..262...67D/abstract
+"Io:Jupiter I" "Sol/Jupiter"
+{
+	Class	"moon"
+	Texture	"io.*"
+	Color	[ 1.0 0.94191 0.70074 ]
+	SpecularColor [ 1 1 1 ]
+	SpecularPower 30
+	SemiAxes	[ 1831.1 1820.4 1816.6 ]
+	Mass<kg>	8.92965e22  # GM = (5959.91547 ± 0.00135) km^3/s^2
+	CustomOrbit	"io"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Jupiter" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	1.769137786
+	#	SemiMajorAxis	421769
+	#	Eccentricity	0.0041
+	#	Inclination	2.212554
+	#	AscendingNode	336.850441
+	#	ArgOfPericenter	66.167954
+	#	MeanAnomaly	335.152150
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-io"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	25.50
+	#	AscendingNode	358.05
+	#	MeridianAngle	200.39
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.63
+	BondAlbedo	0.56
+	InternalHeatFlux	2.529
+	InfoURL	"https://en.wikipedia.org/wiki/Io_(moon)"
+}
+
+"Europa:Jupiter II" "Sol/Jupiter"
+{
+	Class	"moon"
+	Texture	"europa.*"
+	Color	[ 1.0 0.95939 0.85366 ]
+	SemiAxes	[ 1562.6 1560.3 1559.5 ]
+	Mass<kg>	4.79857e22  # GM = (3202.71210 ± 0.00181) km^3/s^2
+	CustomOrbit	"europa"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Jupiter" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	3.551181
+	#	SemiMajorAxis	671079
+	#	Eccentricity	0.0094
+	#	Inclination	1.790890
+	#	AscendingNode	332.628081
+	#	ArgOfPericenter	254.647596
+	#	MeanAnomaly	345.411243
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-europa"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	25.49
+	#	AscendingNode	358.08
+	#	MeridianAngle	36.022
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.67
+	BondAlbedo	0.68
+	InfoURL	"https://en.wikipedia.org/wiki/Europa_(moon)"
+}
+
+AltSurface "Limit of knowledge" "Sol/Jupiter/Europa"
+{
+	Texture	"europa.*"
+	OverlayTexture	"europa-lok-mask.*"
+	LunarLambert	0.5
+}
+
+# Size and shape from Nadezhdina et al. (2024), Planetary and Space Science 252, 105981
+#   "JunoPerijove 34: Update Ganymede 3D-control network and new DEMs study"
+#   https://ui.adsabs.harvard.edu/abs/2024P%26SS..25205981N/abstract
+"Ganymede:Jupiter III" "Sol/Jupiter"
+{
+	Class	"moon"
+	Texture	"ganymede.*"
+	Color	[ 1.0 0.96761 0.89281 ]
+	SemiAxes	[ 2635.74 2632.38 2629.28 ]
+	Mass<kg>	1.48148e23  # GM = (9887.83275 ± 0.00247) km^3/s^2
+	CustomOrbit	"ganymede"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Jupiter" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	7.15455296
+	#	SemiMajorAxis	1070428
+	#	Eccentricity	0.0013
+	#	Inclination	2.214148
+	#	AscendingNode	343.170954
+	#	ArgOfPericenter	319.809696
+	#	MeanAnomaly	277.048780
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-ganymede"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	25.43
+	#	AscendingNode	358.20
+	#	MeridianAngle	44.064
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.43
+	BondAlbedo	0.35
+	InfoURL	"https://en.wikipedia.org/wiki/Ganymede_(moon)"
+}
+
+AltSurface "Limit of knowledge" "Sol/Jupiter/Ganymede"
+{
+	Texture	"ganymede.*"
+	OverlayTexture	"ganymede-lok-mask.*"
+	LunarLambert	0.5
+}
+
+"Callisto:Jupiter IV" "Sol/Jupiter"
+{
+	Class	"moon"
+	Texture	"callisto.*"
+	Color	[ 1.0 0.9573 0.86499 ]
+	Radius	2410.3
+	Mass<kg>	1.07566e23  # GM = (7179.28340 ± 0.00324) km^3/s^2
+	CustomOrbit	"callisto"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Jupiter" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	16.6890184
+	#	SemiMajorAxis	1882700
+	#	Eccentricity	0.0074
+	#	Inclination	2.016906
+	#	AscendingNode	337.941534
+	#	ArgOfPericenter	16.127956
+	#	MeanAnomaly	85.118909
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-callisto"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	25.17
+	#	AscendingNode	358.72
+	#	MeridianAngle	259.51
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.22
+	BondAlbedo	0.11
+	InfoURL	"https://en.wikipedia.org/wiki/Callisto_(moon)"
+}
+
+AltSurface "Limit of knowledge" "Sol/Jupiter/Callisto"
+{
+	Texture	"callisto.*"
+	OverlayTexture	"callisto-lok-mask.*"
+	LunarLambert	0.5
+}
+
+
+# Saturnian system
+# Masses, densities of Mimas and Phoebe and Saturn's pole orientation from Jacobson (2022), AJ 164, 199
+#   "The Orbits of the Main Saturnian Satellites,
+#   the Saturnian System Gravity Field, and the Orientation of Saturn's Pole"
+#   https://ui.adsabs.harvard.edu/abs/2022AJ....164..199J/abstract
+
+# Bond albedo and internal heat flux from Wang et al. (2024), NatCo 15 (1), id.5045
+#   "Cassini spacecraft reveals global energy imbalance of Saturn"
+#   https://ui.adsabs.harvard.edu/abs/2024NatCo..15.5045W/abstract
+"Saturn" "Sol"
+{
+	Class	"planet"
+	Texture	"saturn.*"
+	Color	[ 1.0 0.9476 0.81514 ]
+	SemiAxes	[ 60268 60268 54364 ]
+	Mass<kg>	5.68317e26  # GM = (37931206.234 ± 0.726) km^3/s^2
+
+	# Atmosphere base: 0.15 bar (tropopause / top of tropospheric haze)
+	# Roman et al. (2013), Icarus 225 (1), p. 93-110
+	#   "Saturn's cloud structure inferred from Cassini ISS"
+	#   https://www.sciencedirect.com/science/article/abs/pii/S0019103513001255
+	#   https://scixplorer.org/abs/2013Icar..225...93R/abstract
+	Atmosphere
+	{
+		Height	340
+
+		Rayleigh	[ 0.00053 0.00126 0.00318 ]
+		MieScaleHeight	34
+
+		Mie	0.001
+		MieHGAnisotropy	0.6
+
+		# Approximating absorption due to gases in the atmosphere.
+		#   CH4: 0.0044
+		Absorption	[ 0.00027 0.00003 0.00000 ]
+	}
+	CustomOrbit	"vsop87-saturn"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	29.656888456386
+	#	SemiMajorAxis	9.581929202823844
+	#	Eccentricity	0.05563834277711069
+	#	Inclination	2.484252385463505
+	#	AscendingNode	113.6996605096974
+	#	ArgOfPericenter	335.8655933994241
+	#	MeanAnomaly	320.4255571246729
+	# }
+
+	# Rotation period from Mankovich et al. (2023), Planet. Sci. Journal 4, 59
+	#   "Saturn's Seismic Rotation Revisited"
+	#   https://ui.adsabs.harvard.edu/abs/2023PSJ.....4...59M/abstract
+	BodyFrame	{ EclipticJ2000 {} }
+	UniformRotation
+	{
+		Period<min>	634.7
+		Inclination	28.054629
+		AscendingNode	169.524973
+		MeridianAngle	358.93  # correct System III prime meridian
+	}
+	GeomAlbedo	0.499740
+	BondAlbedo	0.41
+	InternalHeatFlux	2.84
+	Rings
+	{
+		Inner	74510
+		Outer	140245
+		Texture	"saturn-rings.*"
+	}
+	InfoURL	"https://en.wikipedia.org/wiki/Saturn"
+}
+
+# Size from Tajeddine et al. (2014), Science 346, 322-324
+#   "Constraints on Mimas’ interior from Cassini ISS libration measurements"
+#   https://ui.adsabs.harvard.edu/abs/2014Sci...346..322T/abstract
+"Mimas:Saturn I" "Sol/Saturn"
+{
+	Class	"moon"
+	Mesh	"mimas.cmod"
+	Texture	"mimas.*"
+	Color	[ 0.983 1.0 0.983 ]
+	Radius	206.60  # maximum semi-axis
+	Mass<kg>	3.75094e19
+	Density	1150.1
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"mimas"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	0.9424218
+	#	SemiMajorAxis	185539
+	#	Eccentricity	0.0196
+	#	Inclination	27.001876
+	#	AscendingNode	172.056861
+	#	ArgOfPericenter	108.643370
+	#	MeanAnomaly	37.479867
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-mimas"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	6.48
+	#	AscendingNode	130.66
+	#	MeridianAngle	333.46
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.962
+	BondAlbedo	0.67
+	InfoURL	"https://en.wikipedia.org/wiki/Mimas_(moon)"
+}
+
+# Size and shape from Thomas et al. (2016), Icarus 264, 37-47
+#   "Enceladus's measured physical libration requires a global subsurface ocean"
+#   https://ui.adsabs.harvard.edu/abs/2016Icar..264...37T/abstract
+"Enceladus:Saturn II" "Sol/Saturn"
+{
+	Class	"moon"
+	Texture	"enceladus.*"
+	# NormalMap	"enceladus-normal.*"
+	Color	[ 0.984 1.0 0.984 ]
+	SemiAxes	[ 256.2 251.4 248.6 ]
+	Mass<kg>	1.080318e20
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"enceladus"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	1.370218
+	#	SemiMajorAxis	238037
+	#	Eccentricity	0.0047
+	#	Inclination	28.052057
+	#	AscendingNode	169.506562
+	#	ArgOfPericenter	135.483282
+	#	MeanAnomaly	6.952993
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-enceladus"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	6.48
+	#	AscendingNode	130.66
+	#	MeridianAngle	6.32
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	1.375
+	BondAlbedo	0.81
+	InfoURL	"https://en.wikipedia.org/wiki/Enceladus"
+}
+
+"Tethys:Saturn III" "Sol/Saturn"
+{
+	Class	"moon"
+	Texture	"tethys.*"
+	NormalMap	"tethys-normal.*"
+	Color	[ 0.980 1.0 0.966 ]
+	SemiAxes	[ 538.4 528.3 526.3 ]
+	Mass<kg>	6.174959e20
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"tethys"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	1.887802
+	#	SemiMajorAxis	294672
+	#	Eccentricity	0.0001
+	#	Inclination	27.221003
+	#	AscendingNode	167.998171
+	#	ArgOfPericenter	157.575335
+	#	MeanAnomaly	350.864392
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-tethys"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	6.48
+	#	AscendingNode	130.66
+	#	MeridianAngle	8.95
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	1.229
+	BondAlbedo	0.61
+	InfoURL	"https://en.wikipedia.org/wiki/Tethys_(moon)"
+}
+
+"Dione:Saturn IV" "Sol/Saturn"
+{
+	Class	"moon"
+	Texture	"dione.*"
+	NormalMap	"dione-normal.*"
+	Color	[ 0.990 1.0 0.989 ]
+	SemiAxes	[ 563.4 561.3 559.6 ]
+	Mass<kg>	1.0954868e21
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"dione"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	2.736915
+	#	SemiMajorAxis	377415
+	#	Eccentricity	0.0022
+	#	Inclination	28.041482
+	#	AscendingNode	169.470090
+	#	ArgOfPericenter	164.934721
+	#	MeanAnomaly	332.057584
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-dione"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	6.48
+	#	AscendingNode	130.66
+	#	MeridianAngle	357.6
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.998
+	BondAlbedo	0.52
+	InfoURL	"https://en.wikipedia.org/wiki/Dione_(moon)"
+}
+
+# Size and shape from Tortora et al. (2016), Icarus 264, 264-273
+#   "Rhea gravity field and interior modeling from Cassini data analysis"
+#   https://cris.unibo.it/handle/11585/581818
+#   https://ui.adsabs.harvard.edu/abs/2016Icar..264..264T/abstract
+"Rhea:Saturn V" "Sol/Saturn"
+{
+	Class	"moon"
+	Texture	"rhea.*"
+	# NormalMap	"rhea-normal.*"
+	Color	[ 1.0 0.98264 0.94056 ]
+	SemiAxes	[ 765.68 763.60 762.86 ]
+	Mass<kg>	2.3064854e21
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"rhea"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	4.518212
+	#	SemiMajorAxis	527068
+	#	Eccentricity	0.0012583
+	#	Inclination	28.241393
+	#	AscendingNode	168.984156
+	#	ArgOfPericenter	165.781086
+	#	MeanAnomaly	206.903127
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-rhea"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	6.45
+	#	AscendingNode	130.38
+	#	MeridianAngle	235.16
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.949
+	BondAlbedo	0.48
+	InfoURL	"https://en.wikipedia.org/wiki/Rhea_(moon)"
+}
+
+# Size and shape from Corlies et al. (2017), Geophysical Research Letters 44, 11754-11761
+#   "Titan's Topography and Shape at the End of the Cassini Mission"
+#   https://ui.adsabs.harvard.edu/abs/2017GeoRL..4411754C/abstract
+"Titan:Saturn VI" "Sol/Saturn"
+{
+	Class	"moon"
+	Texture	"titan.*"
+	Color	[ 1.0 0.90773 0.72897 ]
+	SpecularColor	[ 0.50 0.44 0.40 ]
+	SpecularPower	1000
+	SemiAxes	[ 2575.164 2574.720 2574.314 ]
+	Mass<kg>	1.345180354e23
+	Atmosphere
+	{
+		Height	1000
+
+		# Scale height set so gas number density is accurate at surface and at 250 km (optical limb altitude)
+		Rayleigh	[ 0.02180 0.05159 0.12872 ]
+		MieScaleHeight	36
+
+		# Approximating absorption due to gases in the atmosphere.
+		#   CH4: 0.014
+		Absorption	[ 0.00751 0.00087 0.00001 ]
+
+		# CloudHeight from Karkoschka & Lorenz (1997), Icarus 125 (2), pp. 369-379
+		#   "Latitudinal Variation of Aerosol Sizes Inferred from Titan's Shadow"
+		#   https://www.sciencedirect.com/science/article/abs/pii/S0019103596956213
+		#   https://ui.adsabs.harvard.edu/abs/1997Icar..125..369K/abstract
+		#   Uses optical limb altitude at southern region at 600-650 nm (~haze color).
+		# CloudSpeed derived from Read & Lebonnois (2018), AREPS 46, 175
+		#   "Superrotation on Venus, on Titan, and Elsewhere"
+		#   https://ui.adsabs.harvard.edu/abs/2018AREPS..46..175R/abstract
+		CloudHeight	250
+		CloudSpeed	180  # degrees/day, 100 m/s wind speed
+		CloudMap	"titan-clouds.*"
+	}
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"titan"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	15.945421
+	#	SemiMajorAxis	1221865
+	#	Eccentricity	0.0288
+	#	Inclination	27.718340
+	#	AscendingNode	169.239155
+	#	ArgOfPericenter	164.409100
+	#	MeanAnomaly	163.436236
+	# }
+
+	# Meriggiola et al. (2016), Icarus 275, 183-192
+	#   "The rotational dynamics of Titan from Cassini RADAR images"
+	#   https://ui.adsabs.harvard.edu/abs/2016Icar..275..183M/abstract
+	BodyFrame	{ EquatorJ2000 {} }
+	UniformRotation  # pole location + spin rate case
+	{
+		Inclination	6.549
+		AscendingNode	129.45
+		MeridianAngle	189.64
+	}
+	LunarLambert 0.5
+	GeomAlbedo	0.21
+	BondAlbedo	0.265
+	Emissivity	0.583  # Greenhouse effect: 21 - 9 = 12 K
+	InfoURL	"https://en.wikipedia.org/wiki/Titan_(moon)"
+}
+
+# Size and density from Zubarev & Nadezhdina (2025), Icarus 429, 116440
+#   "Hyperion (S VII): Shape, mosaic and control point network"
+#   https://ui.adsabs.harvard.edu/abs/2025Icar..42916440Z/abstract
+"Hyperion:Saturn VII" "Sol/Saturn"
+{
+	Class	"minormoon"
+	Mesh	"hyperion.cmod"
+	MeshCenter	[ 3.792 2.103 4.191 ]
+	Texture	"hyperion.*"
+	Color	[ 1.0 0.979 0.929 ]
+	Radius	180.9  # maximum semi-axis
+	Mass<kg>	5.5510e18
+	Density	563
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"hyperion"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	21.276609
+	#	SemiMajorAxis	1500934
+	#	Eccentricity	0.0274
+	#	Inclination	27.209154
+	#	AscendingNode	168.304747
+	#	ArgOfPericenter	188.693292
+	#	MeanAnomaly	70.603755
+	# }
+
+	# The rotation of Hyperion is chaotic; we use the spin state observed by Cassini
+	# at 2005 Sept 25, as reported in Thomas et al. (2007), Nature 448, 50-56
+	#   "Hyperion's sponge-like appearance" (supplementary information)
+	#   https://www.nature.com/articles/nature05779
+	# A forced precession component is modeled using the period from
+	# Black et al. (1995), Icarus 117, 149-161, "Hyperion: Rotational Dynamics"
+	#   https://ui.adsabs.harvard.edu/abs/1995Icar..117..149B/abstract
+	BodyFrame	{ EquatorJ2000 {} }
+	PrecessingRotation
+	{
+		Epoch	2453639.0  # 2005 Sept 25 12:00
+		Period	120  # 72 deg/day
+		Inclination	33.4
+		AscendingNode	45.1
+		MeridianAngle	115  # approx.
+		PrecessionPeriod<d>	320
+	}
+	LunarLambert	1  # lunar-like scattering
+	GeomAlbedo	0.44  # Verbiscer et al. (2018), "Enceladus and the Icy Moons of Saturn", p. 325
+	BondAlbedo	0.33  # Howard et al. (2012), 2012Icar..220..268H
+	SphAlbedo	0.29  # from bolometric albedo and spectrum
+	InfoURL	"https://en.wikipedia.org/wiki/Hyperion_(moon)"
+}
+
+"Iapetus:Saturn VIII" "Sol/Saturn"
+{
+	Class	"moon"
+	Texture	"iapetus.*"
+	# NormalMap	"iapetus-normal.*"
+	Color	[ 0.993 1.0 0.976 ]
+	SemiAxes	[ 745.7 745.7 712.1 ]
+	Mass<kg>	1.8056591e21
+
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	CustomOrbit	"iapetus"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	79.330183
+	#	SemiMajorAxis	3560851
+	#	Eccentricity	0.0276812
+	#	Inclination	17.238222
+	#	AscendingNode	139.691756
+	#	ArgOfPericenter	229.658481
+	#	MeanAnomaly	208.017516
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-iapetus"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	14.97
+	#	AscendingNode	48.16
+	#	MeridianAngle	355.2
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.27
+	BondAlbedo	0.26
+	InfoURL	"https://en.wikipedia.org/wiki/Iapetus_(moon)"
+}
+
+"Phoebe:Saturn IX" "Sol/Saturn"
+{
+	Class	"minormoon"
+	Mesh	"phoebe.cmod"
+	Texture	"phoebe.*"
+	Radius	109.4  # maximum semi-axis
+	Mass<kg>	8.3123e18
+	Density	1642.8
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Saturn" }
+	}
+	EllipticalOrbit
+	{
+		Epoch	2453167.5  # 2004 Jun 11
+		Period	548.167596
+		SemiMajorAxis	12917060.944
+		Eccentricity	0.152921
+		Inclination	173.212514
+		AscendingNode	263.558611
+		ArgOfPericenter	2.526169
+		MeanAnomaly	31.167678
+	}
+
+	# Period and meridian angle from Gomes-Júnior et al. (2020), MNRAS 492, 770-781
+	#   "The first observed stellar occultations by the irregular satellite
+	#   Phoebe (Saturn IX) and improved rotational period"
+	#   https://ui.adsabs.harvard.edu/abs/2020MNRAS.492..770G/abstract
+	BodyFrame	{ EquatorJ2000 {} }
+	UniformRotation
+	{
+		Period	9.273653
+		Inclination	12.20
+		AscendingNode	86.90
+		MeridianAngle	125.56
+	}
+	LunarLambert	0.5
+	GeomAlbedo	0.081
+	BondAlbedo	0.026
+	InfoURL	"https://en.wikipedia.org/wiki/Phoebe_(moon)"
+}
+
+
+# Uranian system
+# Masses and Uranus' pole orientation from Jacobson & Park (2025), AJ 169, 65
+#   "The Orbits of Uranus, Its Satellites and Rings, the Gravity Field of the
+#   Uranian System, and the Orientation of the Poles of Uranus and Its Satellites"
+#   https://ui.adsabs.harvard.edu/abs/2025AJ....169...65J/abstract
+
+# Size and shape from Mankovich et al. (2026), Planet. Sci. J. 7, 102
+#   "Can Radio Occultations Constrain Uranus or Neptune's Internal Rotation Periods?"
+#   https://ui.adsabs.harvard.edu/abs/2026PSJ.....7..102M/abstract
+# Bond albedo and internal heat flux from Irwin et al. (2025), arXiv:2502.18971
+#   "The bolometric Bond albedo and energy balance of Uranus"
+#   https://arxiv.org/abs/2502.18971
+"Uranus" "Sol"
+{
+	Class	"planet"
+	Texture	"uranus.*"
+	Color	[ 0.86828 0.97 1.0 ]
+	SemiAxes	[ 25556.6 25556.6 24968.7 ]
+	Mass<kg>	8.68099e25  # GM = (5793950.61 ± 2.16) km^3/s^2
+
+	# Atmosphere base: 1 bar (Aerosol-2)
+	# Irwin et al. (2022), JGR: Planets 127 (6), article id. e07189
+	#   "Hazy Blue Worlds: A Holistic Aerosol Model for Uranus and Neptune, Including Dark Spots"
+	#   https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2022JE007189
+	#   https://ui.adsabs.harvard.edu/abs/2022JGRE..12707189I/abstract
+	Atmosphere
+	{
+		Height	240
+
+		Rayleigh	[ 0.00346 0.00822 0.02067 ]
+		MieScaleHeight	24
+
+		# Mie coefficient from Irwin et al. (2022), JGR: Planets 127 (6), article id. e07189
+		# Aerosol-3 opacity (τ_3) at 0.8 μm = 0.03
+		#   scaled by 2 (fudge to get opacity at 0.55 μm), divided by scale height = 24 km
+		Mie	0.0025
+
+		# Absorption from haze, assuming Titan haze absorption.
+		Absorption	[ 0.0017 0.0019 0.0025 ]
+	}
+	CustomOrbit	"vsop87-uranus"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	84.3282227348361
+	#	SemiMajorAxis	19.23015641645675
+	#	Eccentricity	0.04439249637662888
+	#	Inclination	0.7726557415122474
+	#	AscendingNode	74.00240744954429
+	#	ArgOfPericenter	96.59160786069499
+	#	MeanAnomaly	142.8890153357523
+	# }
+
+	# Rotation period from Lamy et al. (2025), Nature Astronomy 9, 658-665
+	#   "A new rotation period and longitude system for Uranus"
+	#   https://www.researchsquare.com/article/rs-3876131/v1
+	#   https://ui.adsabs.harvard.edu/abs/2025NatAs...9..658L/abstract
+	BodyFrame	{ EclipticJ2000 {} }
+	UniformRotation
+	{
+		Period	17.247864           # System III (magnetic field)
+		Inclination	97.724832       # J2000
+		AscendingNode	167.646661  # J2000
+		MeridianAngle	331.13      # correct System III prime meridian
+	}
+	GeomAlbedo	0.437118
+	BondAlbedo	0.349
+	InternalHeatFlux	0.089
+	Rings
+	{
+		Inner	37812
+		Outer	52392
+		Texture	"uranus-rings.*"
+	}
+	InfoURL	"https://en.wikipedia.org/wiki/Uranus"
+}
+
+"Miranda:Uranus V" "Sol/Uranus"
+{
+	Class	"moon"
+	Texture	"miranda.*"  # brightness: 0.72348
+	# NormalMap	"miranda-normal.*"
+	Color	[ 0.665 0.670 0.679 ]
+	BlendTexture	true
+	SemiAxes	[ 240.4 234.2 232.9 ]
+	Mass<kg>	6.16e19  # GM = (4.11 ± 0.11) km^3/s^2
+	CustomOrbit	"miranda"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Uranus" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	1.413479
+	#	SemiMajorAxis	129390
+	#	Eccentricity	0.0013
+	#	Inclination	97.267986
+	#	AscendingNode	172.065967
+	#	ArgOfPericenter	261.816760
+	#	MeanAnomaly	61.247779
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-miranda"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	74.92
+	#	AscendingNode	167.43
+	#	MeridianAngle	149.30
+	# }
+
+	LunarLambert	1
+	GeomAlbedo	0.32
+	BondAlbedo	0.28
+	InfoURL	"https://en.wikipedia.org/wiki/Miranda_(moon)"
+}
+
+"Ariel:Uranus I" "Sol/Uranus"
+{
+	Class	"moon"
+	Texture	"ariel.*"  # brightness: 0.74438
+	# NormalMap	"ariel-normal.*"
+	Color	[ 0.702 0.694 0.683 ]
+	BlendTexture	true
+	SemiAxes	[ 581.1 577.9 577.7 ]
+	Mass<kg>	1.2500e21  # GM = (83.43 ± 0.56) km^3/s^2
+	CustomOrbit	"ariel"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Uranus" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	2.520379
+	#	SemiMajorAxis	191020
+	#	Eccentricity	0.0012
+	#	Inclination	97.721321
+	#	AscendingNode	167.616776
+	#	ArgOfPericenter	43.284123
+	#	MeanAnomaly	154.841923
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-ariel"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	74.90
+	#	AscendingNode	167.43
+	#	MeridianAngle	23.78
+	# }
+
+	LunarLambert	1
+	GeomAlbedo	0.53
+	BondAlbedo	0.23
+	InfoURL	"https://en.wikipedia.org/wiki/Ariel_(moon)"
+}
+
+# Size and geometric albedo from Assafin et al. (2023), MNRAS 526, 6193-6204
+#   "Kilometer-precise (UII) Umbriel physical properties from the multichord
+#   stellar occultation on 2020 September 21"
+#   https://ui.adsabs.harvard.edu/abs/2023MNRAS.526.6193A/abstract
+"Umbriel:Uranus II" "Sol/Uranus"
+{
+	Class	"moon"
+	Texture	"umbriel.*"  # brightness: 0.53202
+	# NormalMap	"umbriel-normal.*"
+	Color	[ 0.657 0.654 0.644 ]
+	BlendTexture	true
+	Radius	582.4
+	Mass<kg>	1.2795e21  # GM = (85.40 ± 0.68) km^3/s^2
+	CustomOrbit	"umbriel"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Uranus" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	4.1441772
+	#	SemiMajorAxis	266000
+	#	Eccentricity	0.0039
+	#	Inclination	97.679326
+	#	AscendingNode	167.637075
+	#	ArgOfPericenter	334.489611
+	#	MeanAnomaly	271.690065
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-umbriel"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	74.90
+	#	AscendingNode	167.43
+	#	MeridianAngle	71.95
+	# }
+
+	LunarLambert	1
+	GeomAlbedo	0.26
+	BondAlbedo	0.10
+	InfoURL	"https://en.wikipedia.org/wiki/Umbriel_(moon)"
+}
+
+# Size from Widemann et al. (2009), Icarus 199, 458-476
+#   "Titania's radius and an upper limit on its atmosphere from the
+#   September 8, 2001 stellar occultation"
+#   https://www.researchgate.net/publication/232260483
+#   https://ui.adsabs.harvard.edu/abs/2009Icar..199..458W/abstract
+"Titania:Uranus III" "Sol/Uranus"
+{
+	Class	"moon"
+	Texture	"titania.*"  # brightness: 0.61729
+	# NormalMap	"titania-normal.*"
+	Color	[ 0.722 0.704 0.688 ]
+	BlendTexture	true
+	Radius	788.4
+	Mass<kg>	3.3382e21  # GM = (222.80 ± 1.45) km^3/s^2
+	CustomOrbit	"titania"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Uranus" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	8.706234
+	#	SemiMajorAxis	435910
+	#	Eccentricity	0.0011
+	#	Inclination	97.821207
+	#	AscendingNode	167.613219
+	#	ArgOfPericenter	203.953805
+	#	MeanAnomaly	72.597842
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-titania"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	74.90
+	#	AscendingNode	167.43
+	#	MeridianAngle	102.26
+	# }
+
+	LunarLambert	1
+	GeomAlbedo	0.35
+	BondAlbedo	0.17
+	InfoURL	"https://en.wikipedia.org/wiki/Titania_(moon)"
+}
+
+"Oberon:Uranus IV" "Sol/Uranus"
+{
+	Class	"moon"
+	Texture	"oberon.*"  # brightness: 0.57708
+	# NormalMap	"oberon-normal.*"
+	Color	[ 0.712 0.700 0.682 ]
+	BlendTexture	true
+	Radius	761.4
+	Mass<kg>	3.2095e21  # GM = (214.21 ± 2.14) km^3/s^2
+	CustomOrbit	"oberon"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Uranus" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	13.463234
+	#	SemiMajorAxis	583520
+	#	Eccentricity	0.0014
+	#	Inclination	97.877864
+	#	AscendingNode	167.756308
+	#	ArgOfPericenter	252.847153
+	#	MeanAnomaly	94.662801
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-oberon"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Inclination	74.90
+	#	AscendingNode	167.43
+	#	MeridianAngle	173.23
+	# }
+
+	LunarLambert	1
+	GeomAlbedo	0.31
+	BondAlbedo	0.14
+	InfoURL	"https://en.wikipedia.org/wiki/Oberon_(moon)"
+}
+
+
+# Neptunian system
+
+# Size and shape from Mankovich et al. (2026), Planet. Sci. J. 7, 102
+#   "Can Radio Occultations Constrain Uranus or Neptune's Internal Rotation Periods?"
+#   https://ui.adsabs.harvard.edu/abs/2026PSJ.....7..102M/abstract
+"Neptune" "Sol"
+{
+	Class	"planet"
+	Texture	"neptune.*"
+	Color	[ 0.78302 0.91535 1.0 ]
+	SemiAxes	[ 24760.6 24760.6 24285.3 ]
+	Mass<kg>	1.024092e26
+
+	# Atmosphere base: 1 bar (Aerosol-2)
+	# Irwin et al. (2022), JGR: Planets 127 (6), article id. e07189
+	Atmosphere
+	{
+		Height	180
+
+		Rayleigh	[ 0.00349 0.00830 0.02086 ]
+		MieScaleHeight	18
+
+		# Mie coefficient from Irwin et al. (2022), JGR: Planets 127 (6), article id. e07189
+		# Aerosol-3 opacity (τ_3) at 0.8 μm = 0.04
+		#   scaled by 2 (fudge to get opacity at 0.55 μm), divided by scale height = 18 km
+		Mie	0.0044
+
+		# Absorption from haze, assuming Titan haze absorption.
+		Absorption	[ 0.0029 0.0033 0.0044 ]
+	}
+	CustomOrbit	"vsop87-neptune"
+
+	# Overridden by CustomOrbit
+	# EllipticalOrbit
+	# {
+	#	Epoch	2451545.0  # 2000 Jan 01 12:00
+	#	Period	165.087916323222
+	#	SemiMajorAxis	30.09392573136601
+	#	Eccentricity	0.01120361794639117
+	#	Inclination	1.770211285182674
+	#	AscendingNode	131.7839137619412
+	#	ArgOfPericenter	267.3151968586168
+	#	MeanAnomaly	266.1055972475706
+	# }
+
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-neptune"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Period	15.96630  # System II (optical features)
+	#	Inclination	46.54
+	#	AscendingNode	29.36
+	#	MeridianAngle	249.978  # correct System II prime meridian
+	# }
+
+	GeomAlbedo	0.409338
+	BondAlbedo	0.290
+	InternalHeatFlux	0.433
+	Rings
+	{
+		Inner	40900
+		Outer	62947
+		Texture	"neptune-rings.*"
+	}
+	InfoURL	"https://en.wikipedia.org/wiki/Neptune"
+}
+
+# Size from Stooke (1994), Earth, Moon, and Planets 65, 31-54
+#   "The Surfaces of Larissa and Proteus"
+#   https://ui.adsabs.harvard.edu/abs/1994EM%26P...65...31S/abstract
+"Proteus:Neptune VIII:S 1989 N 1" "Sol/Neptune"
+{
+	Class	"moon"
+	Mesh	"proteus.cmod"
+	Texture	"proteus.*"
+	Radius	212  # maximum semi-axis
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Neptune" }
+	}
+	EllipticalOrbit
+	{
+		Epoch	2447763.5  # 1989 Aug 25
+		Period	1.12231477
+		SemiMajorAxis	117647
+		Eccentricity	0.00053
+		Inclination	28.908433
+		AscendingNode	48.083589
+		ArgOfPericenter	81.195458
+		MeanAnomaly	34.162384
+	}
+	BodyFrame	{ EquatorJ2000 {} }
+	UniformRotation
+	{
+		Inclination	47.57
+		AscendingNode	29.21
+		MeridianAngle	93.42
+	}
+	LunarLambert	0.5
+	GeomAlbedo	0.096
+	InfoURL	"https://en.wikipedia.org/wiki/Proteus_(moon)"
+}
+
+# Size and shape from Thomas (2000), Icarus 148, 587-588
+#   "The Shape of Triton from Limb Profiles"
+#   https://ui.adsabs.harvard.edu/abs/2000Icar..148..587T/abstract
+"Triton:Neptune I" "Sol/Neptune"
+{
+	Class	"moon"
+	Texture	"triton.*"
+	Color	[ 1.0 0.99024 0.96338 ]
+	SemiAxes	[ 1354.6 1352.8 1352.4 ]
+	Mass<kg>	2.14029e22  # GM = (1428.49546 ± 0.61603) km^3/s^2
+	Atmosphere
+	{
+		Height	100
+
+		# Rayleigh coefficient multiplied by fudge factor to correct appearance.
+		#   Fudge factor: 10
+		# Scale heights and Mie anisotropy from Gao & Ohno (2024)
+		#   "Clouds and Hazes in the Atmospheres of Triton and Pluto"
+		#   https://arxiv.org/abs/2411.12031
+		#   Mie anisotropy assumed to be the same as discrete component's.
+		Rayleigh	[ 0.0000052 0.0000124 0.0000309 ]
+		RayleighScaleHeight	16
+		
+		# Mie coefficient scaled from Pluto's, using optical depth from Gao & Ohno (2024).
+		Mie	0.000003
+		MieHGAnisotropy	0.6
+		MieScaleHeight	11
+	}
+	CustomOrbit	"triton"
+
+	# Overridden by CustomOrbit
+	# OrbitFrame
+	# {
+	#	EclipticJ2000	{ Center "Sol/Neptune" }
+	# }
+	# EllipticalOrbit
+	# {
+	#	Epoch	2447763.5  # 1989 Aug 25 (Voyager 2 encounter)
+	#	Period	5.8768541
+	#	SemiMajorAxis	354759
+	#	Eccentricity	0.000016
+	#	Inclination	130.909204
+	#	AscendingNode	213.174202
+	#	ArgOfPericenter	278.113474
+	#	MeanAnomaly	349.996104
+	# }
+
+	OrbitFrame
+	{
+		EquatorJ2000	{ Center "Sol/Neptune" }
+	}
+	BodyFrame	{ EquatorJ2000 {} }
+	CustomRotation	"iau-triton"
+
+	# Overridden by CustomRotation
+	# UniformRotation
+	# {
+	#	Epoch	2447763.5  # 1989 Aug 25 (Voyager 2 encounter)
+	#	Inclination	110.44
+	#	AscendingNode	206.17
+	#	MeridianAngle	77.41
+	# }
+
+	LunarLambert	0.5
+	GeomAlbedo	0.719
+	BondAlbedo	0.65
+	InfoURL	"https://en.wikipedia.org/wiki/Triton_(moon)"
+}
+
+# Kiss et al. (2016), MNRAS 457, 2908-2917
+#   "Nereid from space: rotation, size and shape analysis from K2, Herschel and Spitzer observations"
+#   https://ui.adsabs.harvard.edu/abs/2016MNRAS.457.2908K/abstract
+"Nereid:Neptune II" "Sol/Neptune"
+{
+	Class	"minormoon"
+	Mesh	"roughsphere.cms"
+	Texture	"asteroid.*"
+	Color	[ 0.616 0.566 0.551 ]
+	BlendTexture	true
+	Radius	172.5
+	SemiAxes	[ 1.140 1.006 0.872 ]  # a/b = 1.133, c/b = 0.867 (X = 0.133)
+	OrbitFrame
+	{
+		EclipticJ2000	{ Center "Sol/Neptune" }
+	}
+	EllipticalOrbit
+	{
+		Epoch	2447763.5  # 1989 Aug 25
+		Period	359.396374
+		SemiMajorAxis	5506217.008
+		Eccentricity	0.753882
+		Inclination	5.055101
+		AscendingNode	319.892917
+		ArgOfPericenter	296.451886
+		MeanAnomaly	36.055860
+	}
+	BodyFrame	{ EclipticJ2000 {} }
+	UniformRotation
+	{
+		Period	11.594
+		Inclination	58
+		AscendingNode	50
+	}
+	LunarLambert	0.5
+	GeomAlbedo	0.25
+	InfoURL	"https://en.wikipedia.org/wiki/Nereid_(moon)"
+}

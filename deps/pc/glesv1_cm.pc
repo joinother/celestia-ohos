@@ -1,0 +1,8 @@
+prefix=/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/sysroot
+includedir=/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/sysroot/usr/include
+libdir=/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/native/sysroot/usr/lib/aarch64-linux-ohos
+Name: glesv1_cm
+Description: OpenGL ES 1
+Version: 1.0
+Libs: -L${libdir} -lGLESv1_CM
+Cflags: -I${includedir}

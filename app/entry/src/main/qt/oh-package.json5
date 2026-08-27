@@ -1,0 +1,6 @@
+{
+  "name": "libqohos.so",
+  "types": "./libqohos.d.ts",
+  "version": "1.0.0",
+  "description": "Qt for HarmonyOS platform integration NAPI bindings"
+}

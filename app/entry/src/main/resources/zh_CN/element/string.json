@@ -1,0 +1,7 @@
+{
+  "string": [
+    { "name": "module_desc", "value": "Celestia - 基于 OpenGL 的 3D 宇宙模拟器（鸿蒙版）" },
+    { "name": "QAbility_desc", "value": "Celestia 三维宇宙" },
+    { "name": "QAbility_label", "value": "天际遨游" }
+  ]
+}

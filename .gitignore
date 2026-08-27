@@ -1,0 +1,37 @@
+# ---- 构建产物 ----
+build/
+install/
+libs-backup/
+deps/prefix/
+deps/fmt-build/
+deps/libepoxy-build/
+
+# ---- 鸿蒙 / Node 依赖与构建 ----
+**/oh_modules/
+**/node_modules/
+app/entry/build/
+app/build/
+app/.hvigor/
+**/.cxx/
+*.har
+*.hsp
+
+# ---- 签名证书与安装包（切勿上传）----
+sign/*.p12
+sign/*.pem
+sign/*.cer
+sign/*.p7b
+*.hap
+
+# ---- 本地配置 ----
+app/local.properties
+
+# ---- 日志与临时文件 ----
+*.log
+hilog*.txt
+/h*.txt
+*.jpeg
+*.jpg
+*.bak
+*.orig
+.DS_Store
