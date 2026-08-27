@@ -42,3 +42,10 @@
 - **修改原因：** journey 的朝向在单次 update 中不生效，导致目标在视野边缘或不可见
 - **构建结果：** BUILD SUCCESSFUL
 - **验证结果：** 通过（渲染出居中的地球 55533km 与木星 4.45AU，均为满相位大球体）
+
+## 2026-08-27 - 资源完整性审计与修复（asteroid.jpg / logo.png）
+- **修改文件：** `tools/check-assets.py`（新增）、`docs/RESOURCE-AUDIT.md`（新增）、rawfile 数据（asteroid.jpg、logo.png）
+- **修改内容：** 新增资源审计脚本（cfg 引用 + ssc Mesh/Texture 深度核对 + 体积统计）；修复缺失的 comet 纹理 `asteroid.jpg`（mathilde.jpg 替代）与启动 Logo `logo.png`（splash.png 替代）
+- **修改原因：** 上架前资源完整性硬检查；旧 comets.ssc 引用已移除纹理
+- **构建结果：** 无需重编译（纯数据）
+- **验证结果：** 通过（cfg 0 缺失、ssc 9038 引用 0 缺失、渲染 Halley 无数据错误；总体积 247.6 MB）
