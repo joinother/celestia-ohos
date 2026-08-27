@@ -49,3 +49,10 @@
 - **修改原因：** 上架前资源完整性硬检查；旧 comets.ssc 引用已移除纹理
 - **构建结果：** 无需重编译（纯数据）
 - **验证结果：** 通过（cfg 0 缺失、ssc 9038 引用 0 缺失、渲染 Halley 无数据错误；总体积 247.6 MB）
+
+## 2026-08-27 - 汉化修复（中文字体 + celestia-data.mo + UI 翻译修正）
+- **修改文件：** `fonts/NotoSansCJKsc-Regular.otf`（新增，OFL 开源）、`celestia.cfg`（Font 配置）、`locale/zh_CN/LC_MESSAGES/celestia-data.mo`（新增，73 条天体名）、`locale/zh_CN/LC_MESSAGES/celestia.mo`（修正 Equatorial radii）、`tools/gen-celestia-data-mo.py`（新增）、`tools/patch-celestia-mo.py`（新增）、`docs/LOCALIZATION.md`（新增）
+- **修改内容：** ①诊断用户反馈的"界面英文 + 小方块"：根因是中文字体缺失（DejaVuSans 无 CJK 字形，"实时"渲染成 □□）+ celestia-data.mo 缺失（天体名用独立 gettext 域）。②打包 Noto Sans CJK 并配置全部 UI 字体。③自研 mo 编译器生成 celestia-data.mo（73 条标准天文学译名）。④修正 celestia.mo 的 Equatorial radii 格式。
+- **修改原因：** 用户反馈截图显示英文 + 方块占位符；汉化机制完整但缺字体和天体名翻译
+- **构建结果：** 纯数据/工具改动，无需重编译引擎
+- **验证结果：** python gettext 校验通过（Earth→地球、Distance→距离、Real time→实时）；mac 本机 NLS=OFF 无法复现中文，鸿蒙 NLS=ON 需重新构建 HAP 生效
