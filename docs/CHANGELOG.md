@@ -2,6 +2,15 @@
 
 > 每次变更在此追加，格式见 `AGENTS.md` 第 2 节。
 
+## 2026-08-30 - 渲染清晰度修复：4K hires 纹理 + 默认 hires（对比 Mobile 版）
+- **修改文件：** `celestia-src/src/celestia/qt/qtglwidget.cpp`、`celestia-src/src/celestia/celestiacore.{h,cpp}`、`celestia-src/src/celestia/cli/celestia-cli.cpp`、`textures/hires/*`（12 张 4K）、`textures/medres/earth.jpg`、`docs/RESOLUTION.md`
+- **修改内容：** ① 打包 12 张 4096x2048 hires 纹理（地球+云层+夜景、八大行星、冥王星、月球）；② Qt 默认纹理分辨率 medres→hires；③ medres 兜底 earth.jpg（用户切 Medium 也有大陆）；④ `CelestiaCore::drainResources()` 上传异步解码纹理；⑤ CLI 增加"预热帧→等待→drain→再渲染"（修复单帧渲染永不显示表面纹理）
+- **修改原因：** 桌面版默认 medres(2K) 且 medres 无地球表面纹理 → 地球渲染为纯色圆盘、发糊；Mobile 版用 hires(4K) 所以清晰
+- **构建结果：** 鸿蒙 ninja 编译中；mac CLI 重编 BUILD SUCCESSFUL
+- **验证结果：** CLI hires 渲染地球可见北美/南美大陆（修复前纯蓝）；纹理路径解析确认 medres/hires 均命中
+- **备注：** 详见 `docs/RESOLUTION.md`
+
+
 ## 2026-08-27 - CLI 命令目录 --list/--batch（对齐 Stellarium 命令总线）
 - **修改文件：** `celestia-src/src/celestia/cli/celestia-cli.cpp`、`README.md`
 - **修改内容：** 新增 `kCommandCatalog` 命令目录表；`--list / --list --json` 打印目录（机器可读）；`--batch <file.json>` 批量执行 JSON 命令文件（单项失败不阻断）；交互模式新增 `list` 命令与 `renderimg [WxH]`
