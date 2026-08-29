@@ -227,6 +227,10 @@ public:
     void draw();
     void draw(celestia::View*);
     void tick();
+    // Upload decoded async resources (textures/meshes) to the GPU.
+    // Headless/CLI renderers that do not run a continuous frame loop must
+    // call this after waiting for background decoding to finish.
+    void drainResources();
     // Tick with elapsed time in seconds after last update, useful when
     // app provides a presentation time for the next frame to render
     void tick(double dt);

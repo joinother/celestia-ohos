@@ -1748,6 +1748,12 @@ void CelestiaCore::tick()
     tick(timer->getTime() - sysTime);
 }
 
+void CelestiaCore::drainResources()
+{
+    if (resourceSystem != nullptr)
+        resourceSystem->drainCaches();
+}
+
 void CelestiaCore::tick(double dt)
 {
     sysTime += dt;

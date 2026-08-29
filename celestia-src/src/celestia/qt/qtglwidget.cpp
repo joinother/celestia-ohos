@@ -57,7 +57,7 @@ constexpr float DEFAULT_TINT_SATURATION = 0.5f;
 constexpr int DEFAULT_STARS_COLOR = static_cast<int>(ColorTableType::SunWhite);
 constexpr float DEFAULT_VISUAL_MAGNITUDE = 8.0f;
 constexpr auto DEFAULT_STAR_STYLE = static_cast<int>(StarStyle::FuzzyPointStars);
-constexpr auto DEFAULT_TEXTURE_RESOLUTION = static_cast<int>(engine::TextureResolution::medres);
+constexpr auto DEFAULT_TEXTURE_RESOLUTION = static_cast<int>(engine::TextureResolution::hires);
 
 std::pair<float, float>
 mousePosition(const QMouseEvent& m, qreal scale)

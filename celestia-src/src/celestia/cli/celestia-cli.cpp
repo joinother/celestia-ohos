@@ -28,6 +28,9 @@
 #include <celmath/geomutil.h>
 #include <celutil/logger.h>
 
+#include <chrono>
+#include <thread>
+
 #include "../qt/qtcli.h"
 
 #include <QCommandLineParser>
@@ -187,7 +190,7 @@ bool initCore(const QString& dataDir, const QString& confName)
         fflush(stderr);
         return false;
     }
-    if (!core.initRenderer(TextureResolution::medres))
+    if (!core.initRenderer(TextureResolution::hires))
     {
         fprintf(stderr, "celestia-cli: failed to init renderer\n");
         fflush(stderr);
@@ -269,6 +272,19 @@ bool renderFrame(int width, int height, const QString& outPath, const QString& s
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    core.draw();
+
+    // Headless single-frame render: surface textures are decoded on
+    // background threads and only reach the GPU after drainResources().
+    // A lone draw() therefore renders with default/untextured surfaces.
+    // Render once to enqueue the loads, wait for the decode workers, upload
+    // the ready entries, then render again so the output shows real textures.
+    core.draw();
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+    // drainCaches() uploads up to ~8 MiB per call; loop so all decoded
+    // textures (the 4K earth alone is ~10 MB) reach the GPU.
+    for (int i = 0; i < 32; ++i)
+        core.drainResources();
     core.draw();
 
     // Read back the framebuffer (GL is bottom-up).
